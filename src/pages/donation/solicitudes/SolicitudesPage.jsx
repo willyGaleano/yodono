@@ -1,25 +1,33 @@
-import { List, Avatar, Space, Row, Col, Popconfirm, message } from "antd";
-import {
-  RightSquareTwoTone,
-  CheckCircleTwoTone,
-  CloseCircleTwoTone,
-} from "@ant-design/icons";
-import Text from "antd/lib/typography/Text";
+import { List, Row, Col, Popconfirm, message } from "antd";
+import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
 import FilterApp from "../../home/FilterApp";
-
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { getProductosSolicitud } from "../../../redux/actions/pedidosActions";
+//willy : 8eaad23c-cb52-4832-8d8c-1abd1f6b07ec
+//bryan: ad36eb86-7b1e-4ace-b6e1-0caeb7d2b35a
 const SolicitudesPage = () => {
-  const listData = [];
-  for (let i = 0; i < 23; i++) {
-    listData.push({
-      href: "https://ant.design",
-      title: `Producto ${i + 1}`,
-      description:
-        "Ant Design, a design language for background applications, is refined by Ant UED Team.",
-      content:
-        "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
-    });
-  }
   const textConfirm = "¿Donar producto?";
+  const dispatch = useDispatch();
+  const { productosSolicitud } = useSelector((state) => state.pedido);
+  const [request, setRequest] = useState({
+    userId: "ad36eb86-7b1e-4ace-b6e1-0caeb7d2b35a",
+    estadoNomb: "Solicitado",
+    pageNumber: 1,
+    pageSize: 6,
+  });
+
+  useEffect(() => {
+    dispatch(getProductosSolicitud(request));
+  }, [dispatch, request]);
+
+  const onChangePaginator = (pageNumber) => {
+    console.log(pageNumber);
+    setRequest((prevState) => ({
+      ...prevState,
+      pageNumber,
+    }));
+  };
 
   function confirm() {
     message.success("Clicked on Yes.");
@@ -68,29 +76,29 @@ const SolicitudesPage = () => {
             itemLayout="vertical"
             size="large"
             pagination={{
-              onChange: (page) => {
-                console.log(page);
-              },
-              pageSize: 3,
+              onChange: (page) => onChangePaginator(page),
+              pageSize: productosSolicitud.pageSize,
+              total: productosSolicitud.countTotal,
+              current: productosSolicitud.pageNumber,
             }}
-            dataSource={listData}
+            dataSource={productosSolicitud.data}
             renderItem={(item) => (
               <List.Item
-                key={item.title}
+                key={item.pedidoId}
                 actions={acciones(item)}
                 extra={
                   <img
                     width={272}
-                    alt="logo"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
+                    alt={item.producto.producNomb}
+                    src={item.producto.producImageUrl}
                   />
                 }
               >
                 <List.Item.Meta
-                  title={<a href={item.href}>{item.title}</a>}
-                  description={item.description}
+                  title={<span>{item.producto.producNomb}</span>}
+                  description={item.producto.producDescrip}
                 />
-                {item.content}
+                {item.userSolicitante.userName}
               </List.Item>
             )}
           />

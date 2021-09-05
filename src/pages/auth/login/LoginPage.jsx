@@ -6,8 +6,9 @@ import IconApp from "../../../components/common/svg/IconApp";
 import IconLogin from "../../../components/common/svg/IconLogin";
 import Text from "antd/lib/typography/Text";
 
-const LoginPage = () => {
+const LoginPage = (props) => {
   const onFinish = (values) => {
+    props.history.push("/");
     console.log("Received values of form: ", values);
   };
 
